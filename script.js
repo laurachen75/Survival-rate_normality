@@ -12,11 +12,15 @@ function normalCDF(z) {
 function calculate(mean, lower, upper, comparison) {
   if (![mean, lower, upper, comparison].every(Number.isFinite)) throw new Error("所有欄位都必須填入有效的有限數字。");
   if (!(lower < mean && mean < upper)) throw new Error("請確認：95% CI 下限 < 點估計 < 95% CI 上限。");
-  const left = mean - lower;
-  const right = upper - mean;
-  // Allow only rounding noise from floating-point arithmetic, not asymmetric CIs.
-  const tolerance = Math.max(left, right) * 1e-10;
-  if (Math.abs(left - right) > tolerance) throw new Error("第一版僅接受對稱的 95% CI：點估計與上下限的距離必須相同。");
+  const lowerDistance = mean - lower;
+  const upperDistance = upper - mean;
+  const difference = Math.abs(lowerDistance - upperDistance);
+  // Bound arithmetic noise at the input scale, including the 0.01 boundary.
+  const tolerance = Number.EPSILON * Math.max(1, Math.abs(mean), Math.abs(lower), Math.abs(upper)) * 8;
+  if (difference > 0.01 + tolerance) throw new Error("第一版僅接受對稱的 95% CI：點估計與上下限的距離必須相同。");
+  const originalMean = mean;
+  const corrected = difference > tolerance;
+  if (corrected) mean = (lower + upper) / 2;
   const se = (upper - lower) / (2 * 1.96);
   const z = (comparison - mean) / se;
   const peak = 1 / (se * Math.sqrt(2 * Math.PI));
@@ -25,22 +29,31 @@ function calculate(mean, lower, upper, comparison) {
   if (![se, z, peak, min, max, max - min].every(Number.isFinite) || se <= 0 || !(min < max)) throw new Error("數值範圍超出可計算精度，請縮小數值或調整信賴區間。");
   const percentile = normalCDF(z) * 100;
   const bandLower = Math.min(95, Math.floor(percentile / 5) * 5);
-  return { se, z, peak, min, max, percentile, bandLower };
+  return { mean, originalMean, corrected, se, z, peak, min, max, percentile, bandLower };
 }
 
 function update() {
   const error = document.getElementById("error");
   const output = document.getElementById("output");
+  const correctionNotice = document.getElementById("correction-notice");
+  correctionNotice.hidden = true;
+  correctionNotice.textContent = "";
   try {
     const values = ["mean", "lower", "upper", "comparison"].map(id => {
       const input = document.getElementById(id);
       return input.value.trim() === "" ? NaN : Number(input.value);
     });
-    const [mean, lower, upper, comparison] = values;
+    const [, lower, upper, comparison] = values;
     const r = calculate(...values);
+    const mean = r.mean;
     if (!window.Plotly) throw new Error("Plotly.js 未載入，請確認網路連線後重新整理頁面。");
     error.hidden = true;
     output.hidden = false;
+    if (r.corrected) {
+      document.getElementById("mean").value = String(mean);
+      correctionNotice.textContent = `提示：95%信賴區間上下界與點估計的距離差異不超過0.01，系統已自動將年齡調整5年存活率校正為上下界的平均值。校正前：${r.originalMean}；校正後：${mean}。`;
+      correctionNotice.hidden = false;
+    }
     document.getElementById("se").textContent = r.se.toLocaleString("zh-TW", { maximumSignificantDigits: 6 });
     document.getElementById("z").textContent = r.z.toFixed(3);
     document.getElementById("percentile").textContent = `${r.percentile.toFixed(1)}%`;
