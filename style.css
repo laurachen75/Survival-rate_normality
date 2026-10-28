@@ -1,0 +1,27 @@
+:root { color-scheme: light; font-family: system-ui, -apple-system, "Microsoft JhengHei", sans-serif; color: #233344; background: #f5f7fa; }
+* { box-sizing: border-box; }
+body { margin: 0; }
+main { max-width: 1120px; margin: 0 auto; padding: 40px 24px; }
+header { margin-bottom: 28px; }
+.eyebrow { color: #25766e; font-weight: 650; letter-spacing: .08em; }
+h1 { font-size: clamp(1.6rem, 4vw, 2.2rem); margin: 8px 0 12px; letter-spacing: -.025em; }
+header p, footer { color: #5b6876; line-height: 1.8; }
+.panel { background: white; border: 1px solid #dce3e9; border-radius: 12px; padding: 24px; }
+form { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 20px; }
+label { font-size: .88rem; font-weight: 600; line-height: 1.6; }
+input { width: 100%; display: block; margin-top: 8px; border: 1px solid #bac6d0; border-radius: 6px; padding: 11px 12px; font: inherit; font-size: 1.1rem; color: #233344; background: #fff; }
+input:focus { outline: 3px solid #c3e3df; border-color: #25766e; }
+.hint { font-size: .82rem; color: #647383; margin-bottom: 0; }
+#error { color: #a52626; background: #fff1f1; padding: 12px; border-radius: 6px; line-height: 1.6; }
+.results { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; margin: 24px 0; }
+.results > div { min-width: 0; padding: 18px 20px; background: #eaf2f2; border-radius: 8px; }
+.results span { display: block; font-size: .85rem; color: #526974; }
+.results strong { display: block; margin-top: 8px; font-size: 1.7rem; font-weight: 650; color: #18665e; overflow-wrap: anywhere; }
+.results .percentile-card span { color: #9B111E; font-weight: 700; line-height: 1.6; white-space: normal; overflow-wrap: anywhere; }
+.results .percentile-card strong { color: #9B111E; font-weight: 700; font-size: clamp(1.65rem, 3vw, 2rem); }
+h2 { font-size: 1rem; margin: 0; }
+#chart { height: 430px; width: 100%; }
+footer { font-size: .85rem; margin-top: 22px; }
+[hidden] { display: none !important; }
+@media (max-width: 760px) { form, .results { grid-template-columns: repeat(2, minmax(0, 1fr)); } main { padding: 24px 16px; } .panel { padding: 16px; } }
+@media (max-width: 440px) { form { grid-template-columns: 1fr; } .results { gap: 10px; } .results > div { padding: 14px; } .results strong { font-size: 1.35rem; } }
