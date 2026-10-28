@@ -10,7 +10,7 @@
 </head>
 <body>
 <main>
-  <header><p class="eyebrow">平均數與信賴區間</p><h1>癌症存活率判讀</h1><p>輸入平均數與對稱的 95% 信賴區間，查看比較平均數的相對位置。</p></header>
+  <header><p class="eyebrow">平均數與信賴區間</p><h1>癌症存活率判讀</h1><p>年齡調整5年存活率與95%信賴區間</p></header>
   <section class="panel" aria-label="輸入參數">
     <form id="parameters" novalidate>
       <label for="mean">年齡調整5年存活率<input id="mean" type="number" step="any" value="65.73" required></label>
@@ -28,7 +28,7 @@
       <div class="percentile-card"><span>本院存活率<br>標準化之百分位數</span><strong id="percentile">—</strong></div>
       <div><span>5% 級距</span><strong id="band">—</strong></div>
     </div>
-    <div class="panel chart-panel"><h2>平均數的近似抽樣分布</h2><div id="chart" role="img" aria-label="平均數的常態近似抽樣分布圖"></div></div>
+    <div class="panel chart-panel"><h2>存活率的常態模型抽樣分佈</h2><div id="chart" role="img" aria-label="平均數的常態近似抽樣分布圖"></div></div>
   </section>
   <footer><p>SE = (Upper − Lower) / (2 × 1.96)；Z = (Comparison Mean − Point Estimate) / SE。</p><p>此圖為根據 95% CI 推算的平均數近似抽樣分布，並非個體觀察值的母體分布。百分位數僅代表 Comparison Mean 在此假設分布下的相對位置。</p><p class="hint">圖表透過 CDN 載入 Plotly.js，開啟時需連線至網際網路。</p></footer>
 </main>
