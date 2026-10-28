@@ -13,24 +13,43 @@
   <header><p class="eyebrow">平均數與信賴區間</p><h1>癌症存活率判讀</h1><p>年齡調整5年存活率與95%信賴區間</p></header>
   <section class="panel" aria-label="輸入參數">
     <form id="parameters" novalidate>
-      <label for="mean">年齡調整5年存活率<input id="mean" type="number" step="any" value="65.73" required></label>
-      <label for="lower">95% CI 下限（Lower）<input id="lower" type="number" step="any" value="62.21" required></label>
-      <label for="upper">95% CI 上限（Upper）<input id="upper" type="number" step="any" value="69.25" required></label>
-      <label for="comparison">本院存活率<input id="comparison" type="number" step="any" value="61.82" required></label>
+      <fieldset><legend>參考存活率</legend>
+      <label for="mean">年齡調整5年存活率, %<input id="mean" type="number" step="any" min="0" max="100" value="65.73" required></label>
+      <label for="lower">95% CI 下限<input id="lower" type="number" step="any" min="0" max="100" value="62.21" required></label>
+      <label for="upper">95% CI 上限<input id="upper" type="number" step="any" min="0" max="100" value="69.25" required></label>
+      </fieldset>
+      <fieldset><legend>本院存活率</legend>
+      <label for="comparison">本院存活率, %<input id="comparison" type="number" step="any" min="0" max="100" value="61.82" required></label>
+      <label for="hospital-lower">本院 95% CI 下限<input id="hospital-lower" type="number" step="any" min="0" max="100" value="49.57" required></label>
+      <label for="hospital-upper">本院 95% CI 上限<input id="hospital-upper" type="number" step="any" min="0" max="100" value="74.07" required></label>
+      </fieldset>
     </form>
     <p class="hint">修改數值即可自動更新。上下限須以點估計為中心對稱。</p>
     <p id="error" role="alert" hidden></p>
   </section>
   <section id="output" aria-label="計算結果">
     <div class="results" aria-live="polite">
-      <div><span>標準誤 SE</span><strong id="se">—</strong></div>
-      <div><span>Z-score</span><strong id="z">—</strong></div>
-      <div class="percentile-card"><span>本院存活率<br>標準化之百分位數</span><strong id="percentile">—</strong></div>
-      <div><span>5% 級距</span><strong id="band">—</strong></div>
+      <div class="percentile-card"><span>存活率差異的標準化百分位數</span><strong id="percentile">—</strong><p class="percentile-explanation">假設本院與參考存活率相同，觀察差異在常態分布下的累積百分位，非醫院排名。</p></div>
+      <div><span>標準化百分位級距（5%）</span><strong id="band">—</strong><p id="significance" hidden></p></div>
     </div>
-    <div class="panel chart-panel"><h2>存活率的常態模型抽樣分佈</h2><div id="chart" role="img" aria-label="平均數的常態近似抽樣分布圖"></div></div>
+    <details id="calculation-details">
+      <summary><span class="expand-label">展開詳細計算 ▾</span><span class="collapse-label">收合詳細計算 ▴</span></summary>
+      <div class="details-content">
+        <div class="results" aria-live="polite">
+          <div><span>參考存活率 SE</span><strong id="se">—</strong></div>
+          <div><span>本院存活率 SE</span><strong id="hospital-se">—</strong></div>
+          <div><span>差異的 SE_diff</span><strong id="diff-se">—</strong></div>
+          <div><span>雙尾 p-value</span><strong id="p-value">—</strong></div>
+          <div><span>Z_diff</span><strong id="z">—</strong></div>
+        </div>
+        <p>SE_ref = (upper_ref − lower_ref) / (2 × 1.96)<br>SE_hospital = (upper_hospital − lower_hospital) / (2 × 1.96)<br>SE_diff = √(SE_ref² + SE_hospital²)<br>Z_diff = (hospital_mean − reference_mean) / SE_diff<br>百分位數 = Φ(Z_diff) × 100；雙尾 p-value = 2 × Φ(−|Z_diff|)。</p>
+        <p>本分析假設參考存活率與本院存活率的估計值相互獨立，並採常態近似進行雙尾 Z 檢定。若參考資料包含本院，實際估計值可能相關，檢定結果僅供近似參考。</p>
+        <p id="correction-notice" role="status" aria-live="polite" hidden></p>
+      </div>
+    </details>
+    <div class="panel chart-panel"><h2>兩組獨立估計值之差異的常態近似模型</h2><p class="hint">假設兩組估計值獨立且真正存活率相同，曲線以參考存活率為中心，標準差為 SE_diff；陰影為參考值 ± 1.96 × SE_diff 的零差異模型95%範圍，並非參考或本院的輸入 CI。</p><div id="chart" role="img" aria-label="零差異假設下的常態近似模型圖"></div><p class="hint">鐘形圖為零差異假設下的常態近似模型，非實際醫院存活率分布。</p></div>
   </section>
-  <footer><p>SE = (Upper − Lower) / (2 × 1.96)；Z = (Comparison Mean − Point Estimate) / SE。</p><p id="correction-notice" role="status" aria-live="polite" hidden></p><p>此圖為根據 95% CI 推算的平均數近似抽樣分布，並非個體觀察值的母體分布。百分位數僅代表 Comparison Mean 在此假設分布下的相對位置。</p><p class="hint">圖表透過 CDN 載入 Plotly.js，開啟時需連線至網際網路。</p></footer>
+  <footer><p>此圖為兩組獨立估計值之差異的常態近似模型，為方便比較而平移至以參考存活率為中心，並非個體觀察值的母體分布。百分位數代表本院與參考值之差異在零差異假設模型下的相對位置。</p><p class="hint">圖表透過 CDN 載入 Plotly.js，開啟時需連線至網際網路。</p></footer>
 </main>
 </body>
 </html>
